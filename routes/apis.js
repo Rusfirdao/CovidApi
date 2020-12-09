@@ -16,6 +16,8 @@ router.get('/confirmed', async (req, res, next) => {
     const result = await db.any(`select SUM(cc."3/23/2020"::INTEGER) as total from covid_confirmed cc`);
     res.json(result[0]);
 });
+
+
 router.get('/recovered', async (req, res, next) => {
 
   const result = await db.any(`select SUM(cr."3/23/2020"::INTEGER) as total from covid_recovered cr `);
@@ -38,8 +40,85 @@ router.get('/map', async (req, res, next) => {
   inner join covid_recovered on covid_death."﻿ID" = covid_recovered."﻿ID"  `);
   res.json(result);
 });
+//date table Confirmed
+router.get('/dateConfirmed', async (req, res, next) => {
 
-// //table
+  const result = await db.any(`
+  select country.province ,country ,covid_confirmed."3/23/2020" as day7,covid_confirmed."3/22/2020" as day6, covid_confirmed."3/21/2020" as day5,
+covid_confirmed."3/20/2020" as day4,
+ covid_confirmed."3/19/2020" as day3,
+ covid_confirmed."3/18/2020" as day2,
+ covid_confirmed."3/17/2020" as day1
+from country 
+inner join covid_confirmed 
+on country.id = covid_confirmed.id order by covid_confirmed."3/23/2020" :: INTEGER 
+desc limit 7`);
+  res.json(result);
+});
+
+//date table re
+router.get('/dateRecovered', async (req, res, next) => {
+
+  const result = await db.any(`
+  select country.province ,country ,covid_recovered."3/23/2020" as day7,covid_recovered."3/22/2020" as day6, covid_recovered."3/21/2020" as day5,
+covid_recovered."3/20/2020" as day4,
+ covid_recovered."3/19/2020" as day3,
+ covid_recovered."3/18/2020" as day2,
+covid_recovered."3/17/2020" as day1
+from country 
+inner join covid_recovered 
+on country.id = covid_recovered."﻿ID" order by covid_recovered."3/23/2020" desc `);
+  res.json(result);
+});
+
+
+//date table deaths
+router.get('/dateDeaths', async (req, res, next) => {
+
+  const result = await db.any(`
+  select country.province ,country ,covid_death."3/23/2020" as day7,covid_death."3/22/2020" as day6, covid_death."3/21/2020" as day5,
+covid_death."3/20/2020" as day4,
+ covid_death."3/19/2020" as day3,
+ covid_death."3/18/2020" as day2,
+covid_death."3/17/2020" as day1
+from country 
+inner join covid_death
+on country.id = covid_death."﻿ID" order by covid_death."3/23/2020" desc `);
+  res.json(result);
+});
+
+
+
+
+
+
+
+//top7 /graphtopConfirmed
+router.get('/graphtopConfirmed', async (req, res, next) => {
+
+  const result = await db.any(`
+  select country.province ,country ,covid_confirmed."3/23/2020" as confirmed from country 
+  inner join covid_confirmed on country.id = covid_confirmed.id order by covid_confirmed."3/23/2020" :: INTEGER desc limit 7`);
+  res.json(result);
+});
+
+
+
+//top7 /graphtopDeaths
+router.get('/graphtopDeaths', async (req, res, next) => {
+
+  const result = await db.any(`
+  select province,country,covid_death."3/23/2020" as deaths from country 
+  inner join covid_death on country.id = covid_death."﻿ID" order by "3/23/2020" desc  limit 7`);
+  res.json(result);
+});
+
+
+
+
+
+
+//table
 router.get('/table', async (req, res, next) => {
 
   const result = await db.any(`SELECT  country.country ,country.province ,covid_confirmed."3/23/2020" as confirmed ,covid_recovered."3/23/2020" as recovered ,covid_death."3/23/2020" as deaths
@@ -49,64 +128,7 @@ router.get('/table', async (req, res, next) => {
   inner join covid_recovered on covid_death."﻿ID" = covid_recovered."﻿ID"`);
   res.json(result);
 });
-//top5
-router.get('/tabletop7', async (req, res, next) => {
 
-  const result = await db.any(`
-  select province,country,covid_death."3/23/2020" as deaths from country 
-  inner join covid_death on country.id = covid_death."﻿ID" order by "3/23/2020" desc`);
-  res.json(result);
-});
-
-
-
-//graph
-router.get('/graphConfirmed', async (req, res, next) => {
-
-  const result = await db.any(`select SUM(cc."3/23/2020"::INTEGER) as "3/23/2020" 
-  ,SUM(cc."3/22/2020"::INTEGER) as "3/22/2020",
-  SUM(cc."2/21/2020"::INTEGER) as "3/21/2020",
-  SUM(cc."2/20/2020"::INTEGER) as "2/20/2020",
-  SUM(cc."2/19/2020"::INTEGER) as "2/19/2020",
-  SUM(cc."2/18/2020"::INTEGER) as "2/18/2020",
-  SUM(cc."2/17/2020"::INTEGER) as "2/17/2020",
-  SUM(cc."2/16/2020"::INTEGER) as "2/16/2020",
-  SUM(cc."2/15/2020"::INTEGER) as "2/15/2020",
-  SUM(cc."2/14/2020"::INTEGER) as "2/14/2020" 
-  from covid_confirmed cc"`);
-  res.json(result);
-});
-
-router.get('/graphrecovered', async (req, res, next) => {
-
-  const result = await db.any(`select SUM(cr."3/23/2020"::INTEGER) as "3/23/2020" 
-  ,SUM(cr."3/22/2020"::INTEGER) as "3/22/2020",
-  SUM(cr."2/21/2020"::INTEGER) as "3/21/2020",
-  SUM(cr."2/20/2020"::INTEGER) as "2/20/2020",
-  SUM(cr."2/19/2020"::INTEGER) as "2/19/2020",
-  SUM(cr."2/18/2020"::INTEGER) as "2/18/2020",
-  SUM(cr."2/17/2020"::INTEGER) as "2/17/2020",
-  SUM(cr."2/16/2020"::INTEGER) as "2/16/2020",
-  SUM(cr."2/15/2020"::INTEGER) as "2/15/2020",
-  SUM(cr."2/14/2020"::INTEGER) as "2/14/2020" 
-  from covid_recovered cr`);
-  res.json(result);
-});
-router.get('/graphdeath', async (req, res, next) => {
-
-  const result = await db.any(`select SUM(cd."3/23/2020"::INTEGER) as "3/23/2020" 
-  ,SUM(cd."3/22/2020"::INTEGER) as "3/22/2020",
-  SUM(cd."2/21/2020"::INTEGER) as "3/21/2020",
-  SUM(cd."2/20/2020"::INTEGER) as "2/20/2020",
-  SUM(cd."2/19/2020"::INTEGER) as "2/19/2020",
-  SUM(cd."2/18/2020"::INTEGER) as "2/18/2020",
-  SUM(cd."2/17/2020"::INTEGER) as "2/17/2020",
-  SUM(cd."2/16/2020"::INTEGER) as "2/16/2020",
-  SUM(cd."2/15/2020"::INTEGER) as "2/15/2020",
-  SUM(cd."2/14/2020"::INTEGER) as "2/14/2020" 
-  from covid_death cd"`);
-  res.json(result);
-});
 
 
 
